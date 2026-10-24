@@ -2,7 +2,8 @@
 <!-- saved from url=(0066)file:///C:/Users/cynth/Downloads/Cynthia_Singh_Website_3.html#hero -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1c1c1c">
 <title>Cynthia J Singh | </title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -546,38 +547,143 @@
   .foot-social a:hover{background:var(--maroon);border-color:var(--maroon);color:var(--white);transform:translateY(-3px);}
 
   /* ================= responsive ================= */
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+  section[id]{scroll-margin-top:68px;}
+  /* grid children default to min-width:auto, which lets long content blow a column past the viewport */
+  .hero-grid > *,.about-grid > *,.tech-grid > *,.problem-grid > *,.program-grid > *,
+  .stats-grid > *,.process-track > *,.testi-grid > *,.booking-grid > *{min-width:0;}
+  .info-item .v{overflow-wrap:anywhere;}
+  body.menu-open{overflow:hidden;}
+  .calendly-inline-widget{min-width:280px;height:680px;}
+
+  /* laptops: seven nav links + CTA no longer fit */
+  @media(max-width:1320px){
+    .nav-links{gap:24px;}
+  }
+  @media(max-width:1200px){
+    .nav-links{display:none;}
+    #nav > .nav-cta{margin-left:auto;}
+    .nav-toggle{
+      display:flex;align-items:center;justify-content:center;
+      width:44px;height:44px;margin-right:-10px;
+    }
+  }
+
+  /* tablets */
   @media(max-width:1024px){
+    #nav{padding:0 28px;}
     .hero-grid{grid-template-columns:1fr;}
-    .hero-visual{display:none;}
-    .hero-copy{padding:150px 32px 70px;}
+    .hero-copy{padding:150px 32px 60px;}
+    .hero-visual{height:min(62vw,520px);}
+    .hero-visual::after{background:linear-gradient(180deg, rgba(28,28,28,.95) 0%, rgba(28,28,28,.2) 30%, rgba(128,0,0,.08) 70%, rgba(28,28,28,.25) 100%);}
+    .hero-frame{right:24px;bottom:24px;}
+    .scroll-cue{display:none;}
     .about-grid,.tech-grid,.lm-grid,.booking-grid,.contact-grid{grid-template-columns:1fr;}
+    .about-grid,.tech-grid,.lm-grid{gap:50px;}
+    .about-photo{max-width:440px;margin:0 auto 26px;width:100%;}
+    .tech-photo{max-width:620px;}
     .problem-grid{grid-template-columns:repeat(2,1fr);}
     .program-grid{grid-template-columns:repeat(2,1fr);}
     .stats-grid{grid-template-columns:repeat(3,1fr);}
     .process-track{grid-template-columns:repeat(3,1fr);row-gap:50px;}
     .process-track::before{display:none;}
     .testi-grid{grid-template-columns:1fr;}
+    #about,#problems,#programs,#process,#testimonials,#leadmagnet,#booking{padding:96px 0;}
+    #technical,#audience{padding:90px 0;}
   }
+
+  /* large phones / small tablets */
   @media(max-width:720px){
-    .nav-links{display:none;}
-    .nav-toggle{display:block;}
-    .container{padding:0 22px;}
-    .problem-grid{grid-template-columns:1fr;}
-    .program-grid{grid-template-columns:1fr;}
-    .stats-grid{grid-template-columns:1fr;}
-    .stat-card{border-left:none;border-top:1px solid rgba(255,255,255,.1);}
-    .stat-card:first-child{border-top:none;}
-    .trusted-logos{gap:24px 28px;}
-    .trusted-logos img{max-height:34px;max-width:100px;}
-    .about-photo .tag{position:static;margin-top:18px;}
-    .industry-pills{gap:12px;}
-    .industry-pill{min-width:130px;padding:14px 18px;}
-    .field-row{grid-template-columns:1fr;}
+    #nav{padding:0 max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));}
+    #nav,#nav.scrolled{height:64px;}
+    .brand-mark{width:36px;height:36px;font-size:14.5px;}
+    .brand-text .name{font-size:15px;}
+    .brand-text .role{display:none;}
+    .nav-cta{padding:10px 16px;font-size:11.5px;}
+    #nav > .nav-cta{margin-right:8px!important;}
+    .mobile-menu{padding:96px 28px calc(32px + env(safe-area-inset-bottom));}
+    .container{padding:0 20px;}
+    .btn{white-space:normal;text-align:center;justify-content:center;line-height:1.35;padding:15px 24px;}
+    .section-sub{font-size:15.5px;}
+    .head-row{margin-bottom:40px;gap:16px;}
+    #about,#problems,#programs,#process,#testimonials,#leadmagnet,#booking{padding:72px 0;}
+    #technical,#audience{padding:72px 0;}
+    #trusted{padding:40px 0;}
+    #stats{padding:56px 0;}
+    #contact{padding-top:72px;}
     #hero{min-height:auto;}
-    .hero-copy{padding-top:130px;}
-    .scroll-cue{display:none;}
-    .ebook-cover{transform:none;max-width:260px;}
+    .hero-copy{padding:118px 20px 48px;}
+    .hero-copy .lede{font-size:16px;margin:20px 0 30px;}
+    .hero-quote{margin-top:40px;}
+    .hero-visual{height:min(88vw,440px);}
+    .hero-frame{right:16px;bottom:16px;padding:16px 18px;max-width:190px;}
+    .hero-frame .num{font-size:28px;}
+    .problem-grid{grid-template-columns:1fr;}
+    .program-grid{grid-template-columns:1fr;gap:18px;margin-top:40px;}
+    .program-card{min-height:0;padding:32px 24px;}
+    .stats-grid{grid-template-columns:1fr;gap:0;}
+    .stat-card{border-left:none;border-top:1px solid rgba(255,255,255,.1);padding:28px 16px;}
+    .stat-card:first-child{border-top:none;}
+    .trusted-logos{gap:22px 26px;}
+    .trusted-logos img{max-height:34px;max-width:100px;}
+    .about-photo .tag{position:static;margin-top:18px;max-width:none;}
+    .about-body p{font-size:15.5px;line-height:1.75;}
+    .tech-photo .badge{top:auto;right:12px;bottom:12px;max-width:200px;padding:12px 14px;font-size:12px;}
+    .aud-pills{gap:10px;margin-top:36px;}
+    .aud-pills li{padding:11px 16px;font-size:13.5px;}
+    .industry-head{margin-top:40px;padding-top:30px;}
+    .industry-pills{gap:10px;}
+    .industry-pill{min-width:0;flex:1 1 130px;padding:14px 16px;}
+    .process-track{grid-template-columns:repeat(2,1fr);row-gap:36px;margin-top:44px;}
+    .testi-grid{margin-top:36px;gap:18px;}
+    .testi-card{padding:30px 24px;}
+    .philosophy{margin-top:44px;padding-top:36px;}
+    .ebook-cover{transform:none;max-width:240px;padding:28px 22px;}
+    .ebook-cover .eb-title{font-size:25px;}
     .ebook-mock:hover .ebook-cover{transform:none;}
+    .lm-form{padding:22px 16px;}
+    .gform-wrap iframe{height:720px;}
+    .field-row{grid-template-columns:1fr;}
+    .booking-grid{gap:20px;}
+    .booking-card{padding:32px 24px;}
+    .calendly-panel{margin-top:32px;padding:20px 12px;}
+    .calendly-panel-head{padding:0 4px;}
+    .calendly-inline-widget{height:1020px;}
+    .contact-grid{gap:44px;padding-bottom:56px;}
+    .contact-form{padding:22px 16px;}
+    .foot-bottom{flex-direction:column;text-align:center;padding:26px 0 calc(26px + env(safe-area-inset-bottom));}
+  }
+
+  /* standard phones */
+  @media(max-width:480px){
+    .hero-ctas{flex-direction:column;align-items:stretch;}
+    .hero-ctas .btn{width:100%;}
+    .tech-list{grid-template-columns:1fr;}
+    .tech-levels span{font-size:11px;padding:14px 4px;letter-spacing:.03em;}
+    .booking-card .btn,.lm-form .btn{width:100%;}
+  }
+
+  /* small phones (iPhone SE 1st gen, Galaxy Fold folded) */
+  @media(max-width:360px){
+    #nav > .nav-cta{display:none;}
+    .container{padding:0 16px;}
+    .hero-copy{padding-left:16px;padding-right:16px;}
+    .hero-copy h1{font-size:32px;}
+    .section-title{font-size:26px;}
+    .eyebrow{font-size:11px;letter-spacing:.14em;}
+    .process-track{grid-template-columns:1fr;}
+    .aud-pills li{flex:1 1 auto;text-align:center;}
+  }
+
+  /* short landscape phones: let the drawer scroll */
+  @media(max-height:500px){
+    .mobile-menu{padding-top:80px;gap:16px;overflow-y:auto;}
+  }
+  .mobile-menu{height:100dvh;}
+
+  /* touch screens: no sticky hover lifts */
+  @media(hover:none){
+    .booking-card:hover,.aud-pills li:hover,.industry-pill:hover,.btn:hover{transform:none;}
   }
 </style>
 </head>
@@ -602,10 +708,10 @@
     <a href="#contact">Contact</a>
   </div>
   <a href="#booking" class="nav-cta" style="margin-right:14px;">Book a Call</a>
-  <button class="nav-toggle" id="navToggle" aria-label="Open menu">☰</button>
+  <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">☰</button>
 </nav>
 <div class="menu-backdrop" id="menuBackdrop"></div>
-<div class="mobile-menu" id="mobileMenu">
+<div class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
   <a href="#about">About</a>
   <a href="#programs">Programs</a>
   <a href="#technical">Excel Training</a>
@@ -975,7 +1081,7 @@
         <h4>Pick a Time That Works</h4>
         <a href="https://calendly.com/cynthia-j-singh/30min" target="_blank" rel="noopener" class="calendly-fallback-link">Open in a new tab instead →</a>
       </div>
-      <div class="calendly-inline-widget" data-url="https://calendly.com/cynthia-j-singh/30min?hide_gdpr_banner=1&amp;background_color=f9f8f5&amp;text_color=333333&amp;primary_color=800000" style="min-width:280px;height:680px;"></div>
+      <div class="calendly-inline-widget" data-url="https://calendly.com/cynthia-j-singh/30min?hide_gdpr_banner=1&amp;background_color=f9f8f5&amp;text_color=333333&amp;primary_color=800000"></div>
     </div>
   </div>
 </section>
@@ -1035,8 +1141,9 @@
   }, { threshold: 0.15 });
   revealEls.forEach(el => io.observe(el));
 
-  // 3D tilt on hover
-  document.querySelectorAll('.tilt').forEach(card => {
+  // 3D tilt on hover (mouse/trackpad only)
+  const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (canHover) document.querySelectorAll('.tilt').forEach(card => {
     card.addEventListener('mousemove', (e) => {
       const r = card.getBoundingClientRect();
       const x = e.clientX - r.left, y = e.clientY - r.top;
@@ -1049,7 +1156,7 @@
 
   // hero frame subtle tilt
   const hf = document.querySelector('.hero-frame');
-  if (hf) {
+  if (hf && canHover) {
     document.querySelector('.hero-visual').addEventListener('mousemove', (e) => {
       const r = hf.parentElement.getBoundingClientRect();
       const x = (e.clientX - r.left) / r.width - 0.5;
@@ -1062,13 +1169,21 @@
   const navToggle = document.getElementById('navToggle');
   const mobileMenu = document.getElementById('mobileMenu');
   const menuBackdrop = document.getElementById('menuBackdrop');
-  function closeMenu(){ mobileMenu.classList.remove('open'); menuBackdrop.classList.remove('open'); }
-  navToggle.addEventListener('click', () => {
-    mobileMenu.classList.toggle('open');
-    menuBackdrop.classList.toggle('open');
-  });
+  function setMenu(open){
+    mobileMenu.classList.toggle('open', open);
+    menuBackdrop.classList.toggle('open', open);
+    document.body.classList.toggle('menu-open', open);
+    navToggle.setAttribute('aria-expanded', open);
+    navToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    navToggle.textContent = open ? '✕' : '☰';
+  }
+  function closeMenu(){ setMenu(false); }
+  navToggle.addEventListener('click', () => setMenu(!mobileMenu.classList.contains('open')));
   menuBackdrop.addEventListener('click', closeMenu);
   mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+  // close the drawer if the viewport grows back to the desktop nav (rotation, resize)
+  window.matchMedia('(min-width: 1201px)').addEventListener('change', (e) => { if (e.matches) closeMenu(); });
 
 </script>
 <script src="https://assets.calendly.com/assets/external/widget.js" async=""></script>
