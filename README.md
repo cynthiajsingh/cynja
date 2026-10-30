@@ -72,7 +72,7 @@ Set these in **Netlify → Site configuration → Environment variables**. None 
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `NETLIFY_DATABASE_URL` | yes (production) | Postgres connection string. Netlify DB sets it automatically. `DATABASE_URL` also works if you use another Postgres. |
+| `DATABASE_URL` | yes (production) | Postgres connection string from Neon (or any Postgres). `NETLIFY_DATABASE_URL` is also read, for databases made with the old Netlify DB extension. |
 | `SESSION_SECRET` | yes (production) | At least 32 random characters. Signs CSRF tokens and keys the login rate limiter. Generate: `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"` |
 | `SITE_URL` | recommended | Canonical origin, e.g. `https://cynja.in`. Used for canonical URLs, Open Graph, the sitemap and link handling. Defaults to `https://cynja.in`. |
 | `MEDIA_STORAGE` | no | `netlify-blobs` (production default) or `local` (development default). |
@@ -88,19 +88,18 @@ build command (`npm run build`), which applies database migrations and then buil
 1. **Push to `main`.** The site deploys. Until a database exists, `/blogs` shows
    "temporarily unavailable" and `/admin` says the database isn't configured. The
    homepage is unaffected.
-2. **Create the database.** In Netlify, open the site and go to **Extensions → Neon** (or
-   run `npx netlify db init` in this folder). This creates a Postgres database and sets
-   `NETLIFY_DATABASE_URL`.
-   - ⚠️ **Claim it in Neon promptly.** Netlify DB databases that are not claimed into a
-     Neon account are deleted after 7 days. Use the "Claim database" link in the Netlify
-     UI. The Neon free tier is sufficient.
+2. **Create the database.** The Netlify DB (Neon) extension no longer creates new
+   databases, so create one directly in Neon:
+   - Sign up at **https://neon.tech** (the free tier is enough) and create a project in the
+     region closest to the site's functions (e.g. AWS US East).
+   - On the project dashboard, click **Connect** and copy the connection string
+     (`postgresql://…neon.tech/neondb?sslmode=require…`).
+   - In Netlify, add it as the environment variable **`DATABASE_URL`**, marked as secret.
 3. **Add `SESSION_SECRET`** and **`SITE_URL=https://cynja.in`** as environment variables.
 4. **Redeploy** (Deploys → Trigger deploy). The build log should show
    `[migrate] applied 001_blog_schema.sql`.
 5. **Create your admin account** from your computer (there is deliberately no public sign-up page):
    ```bash
-   npx netlify link                                         # once, to connect this folder to the site
-   npx netlify env:get NETLIFY_DATABASE_URL                 # copy the value
    DATABASE_URL="postgres://…" npm run admin:set-password   # on Windows PowerShell: $env:DATABASE_URL="postgres://…"; npm run admin:set-password
    ```
    Then sign in at `https://cynja.in/admin/login`.

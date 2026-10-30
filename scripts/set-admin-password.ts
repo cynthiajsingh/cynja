@@ -18,7 +18,8 @@ function ask(question: string, hidden = false): Promise<string> {
     if (hidden && process.stdin.isTTY) {
       const write = (rl as unknown as { _writeToOutput: (s: string) => void });
       write._writeToOutput = (s: string) => {
-        if (s.includes(question)) process.stdout.write(s);
+        // A paste can arrive as one redraw of prompt + text; mask everything after the prompt.
+        if (s.includes(question)) process.stdout.write(question + '*'.repeat(Math.max(0, s.length - s.indexOf(question) - question.length)));
         else if (s === '\r\n' || s === '\n') process.stdout.write('\n');
         else process.stdout.write('*'.repeat(s.length));
       };
@@ -37,11 +38,22 @@ async function openDb(): Promise<Db> {
     await migrate(db);
     return db;
   }
-  const url = databaseUrl();
-  if (!url) {
-    console.error('Set DATABASE_URL (or NETLIFY_DATABASE_URL) to your Netlify DB connection string, or pass --local for development.');
+  // Ask for the connection string when it isn't in the environment, so nobody has to quote it in a shell.
+  const raw = databaseUrl() ?? (await ask('Paste the DATABASE_URL value from Netlify, then press Enter: ', true)).trim();
+  if (!raw) {
+    console.error('No connection string given. Copy DATABASE_URL from Netlify, or pass --local for development.');
     process.exit(1);
   }
+  // Tolerate pasted snippets such as `psql 'postgresql://…'` or `DATABASE_URL="postgresql://…"`.
+  const url = raw.match(/postgres(?:ql)?:\/\/[^\s'"]+/)?.[0];
+  if (!url) {
+    const preview = raw.replace(/(\/\/[^:]+:)[^@]+@/, '$1****@').slice(0, 40);
+    console.error(`DATABASE_URL does not contain a postgresql:// connection string. It starts with: ${preview}`);
+    console.error('In Neon, click Connect, choose "Connection string", copy it, and set it again.');
+    process.exit(1);
+  }
+  const target = new URL(url);
+  console.log(`Database: ${target.hostname}${target.pathname}`);
   const db = createPgDb(url);
   await migrate(db);
   return db;
