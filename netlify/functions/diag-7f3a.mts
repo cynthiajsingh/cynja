@@ -1,13 +1,19 @@
-// TEMPORARY diagnostic: reports why the SSR bundle fails to load on Netlify. Remove after use.
+// TEMPORARY diagnostic: reports why the SSR bundle fails on Netlify. Remove after use.
+import { renderDocument } from '../../src/server/content/render.ts';
+import { getServices } from '../../src/server/container.ts';
+
 export default async () => {
-  const out: Record<string, unknown> = { node: process.version, runtime: process.env.AWS_EXECUTION_ENV ?? null };
-  for (const mod of ['happy-dom', 'pg', '@tiptap/html/server', 'sanitize-html', 'lowlight', '@netlify/blobs']) {
-    try {
-      await import(mod);
-      out[mod] = 'ok';
-    } catch (err) {
-      out[mod] = `${(err as Error).name}: ${(err as Error).message}`.slice(0, 300);
-    }
+  const out: Record<string, unknown> = { node: process.version, cwd: process.cwd() };
+  try {
+    out.render = renderDocument({ type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'hi' }] }] }, 'https://cynja.in').html;
+  } catch (err) {
+    out.render = `${(err as Error).name}: ${(err as Error).message}`.slice(0, 400);
+  }
+  try {
+    await getServices();
+    out.services = 'ok';
+  } catch (err) {
+    out.services = `${(err as Error).name}: ${(err as Error).message}`.slice(0, 400);
   }
   return Response.json(out, { headers: { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' } });
 };
