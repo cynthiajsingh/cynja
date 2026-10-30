@@ -1,0 +1,7 @@
+---
+import MediaLibraryPage from '../../admin/MediaLibrary.tsx';
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Media" current="media">
+  <MediaLibraryPage client:load />
+</AdminLayout>

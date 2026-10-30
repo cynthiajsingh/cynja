@@ -1,0 +1,113 @@
+---
+import '../styles/site.css';
+import '../styles/blog.css';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Path of the canonical URL, e.g. "/blogs/my-post". Defaults to the current path. */
+  canonicalPath?: string;
+  image?: string | null;
+  imageAlt?: string;
+  type?: 'website' | 'article';
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  article?: { publishedTime: string; modifiedTime: string; author: string; tags: string[]; section?: string };
+  prevUrl?: string;
+  nextUrl?: string;
+}
+
+const { title, description, canonicalPath, image, imageAlt, type = 'website', noindex = false, jsonLd, article, prevUrl, nextUrl } = Astro.props;
+const site = Astro.site ?? new URL(Astro.url.origin);
+const canonical = new URL(canonicalPath ?? Astro.url.pathname, site).href;
+const imageUrl = image ? new URL(image, site).href : new URL('/images/cynthia-hero.webp', site).href;
+const fullTitle = title.includes('Cynthia J Singh') ? title : `${title} | Cynthia J Singh`;
+const path = Astro.url.pathname;
+// Prevent "</script>" inside JSON-LD from closing the tag.
+const ld = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : null;
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1c1c1c" />
+  <title>{fullTitle}</title>
+  <meta name="description" content={description} />
+  {noindex ? <meta name="robots" content="noindex, nofollow" /> : <link rel="canonical" href={canonical} />}
+  {prevUrl && <link rel="prev" href={prevUrl} />}
+  {nextUrl && <link rel="next" href={nextUrl} />}
+  <link rel="alternate" type="application/rss+xml" title="Cynthia J Singh — Blog" href="/blogs/rss.xml" />
+  <meta property="og:site_name" content="Cynthia J Singh" />
+  <meta property="og:type" content={type} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={imageUrl} />
+  {imageAlt && <meta property="og:image:alt" content={imageAlt} />}
+  <meta property="og:locale" content="en_IN" />
+  {article && <meta property="article:published_time" content={article.publishedTime} />}
+  {article && <meta property="article:modified_time" content={article.modifiedTime} />}
+  {article && <meta property="article:author" content={article.author} />}
+  {article?.section && <meta property="article:section" content={article.section} />}
+  {article?.tags.map((t) => <meta property="article:tag" content={t} />)}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={imageUrl} />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  {ld && <script type="application/ld+json" set:html={ld} />}
+  <slot name="head" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <slot name="banner" />
+  <header class="site-nav">
+    <a href="/" class="brand" aria-label="Cynthia J Singh — home">
+      <span class="brand-mark" aria-hidden="true">CS</span>
+      <span class="brand-name">Cynthia J Singh</span>
+    </a>
+    <button class="nav-toggle" id="siteNavToggle" aria-expanded="false" aria-controls="siteNavLinks" aria-label="Open menu">☰</button>
+    <nav aria-label="Main">
+      <ul class="nav-links" id="siteNavLinks">
+        <li><a href="/#about">About</a></li>
+        <li><a href="/#programs">Programs</a></li>
+        <li><a href="/#technical">Technical Trainings</a></li>
+        <li><a href="/#testimonials">Testimonials</a></li>
+        <li><a href="/blogs" aria-current={path.startsWith('/blogs') ? 'page' : undefined}>Blogs</a></li>
+        <li><a href="/#contact">Contact</a></li>
+        <li><a href="/#booking" class="nav-cta">Book a Call</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main id="main" tabindex="-1">
+    <slot />
+  </main>
+  <footer class="site-footer">
+    <div class="container">
+      <p>© {new Date().getFullYear()} Cynthia J Singh — Behavioural Skills Consultant.</p>
+      <nav aria-label="Footer">
+        <a href="/">Home</a>
+        <a href="/blogs">Blogs</a>
+        <a href="/blogs/rss.xml">RSS</a>
+        <a href="https://www.linkedin.com/in/cynthiajsingh/" rel="noopener" target="_blank">LinkedIn</a>
+      </nav>
+    </div>
+  </footer>
+  <script>
+    const toggle = document.getElementById('siteNavToggle');
+    const links = document.getElementById('siteNavLinks');
+    toggle?.addEventListener('click', () => {
+      const open = links?.classList.toggle('open') ?? false;
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      toggle.textContent = open ? '✕' : '☰';
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && links?.classList.contains('open')) toggle?.click();
+    });
+  </script>
+</body>
+</html>

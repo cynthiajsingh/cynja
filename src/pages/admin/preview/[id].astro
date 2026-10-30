@@ -1,0 +1,28 @@
+---
+// Draft preview: same Article component and stylesheet as the public reader,
+// reachable only by a signed-in admin (middleware) and never indexed.
+import Article from '../../../components/blog/Article.astro';
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+import { getServices } from '../../../server/container.ts';
+import { NotFoundError } from '../../../server/errors.ts';
+
+const id = Astro.params.id ?? '';
+if (!/^[0-9a-f-]{36}$/.test(id)) return Astro.rewrite('/404');
+const { posts } = await getServices();
+let article;
+let post;
+try {
+  [article, post] = await Promise.all([posts.preview(id), posts.get(id)]);
+} catch (err) {
+  if (err instanceof NotFoundError) return Astro.rewrite('/404');
+  throw err;
+}
+const state = post.isLive ? (post.hasPendingChanges ? 'unpublished changes to a live article' : 'the live article') : post.status === 'scheduled' ? 'a scheduled article' : 'a draft';
+---
+<SiteLayout title={`Preview: ${article.title}`} description={article.excerpt} noindex>
+  <div slot="banner" class="preview-banner" role="note">
+    <strong>Preview</strong> — you're viewing {state}. Only you can see this page.
+    <a href={`/admin/blogs/${id}`}>← Back to editor</a>
+  </div>
+  <Article article={article} backHref={`/admin/blogs/${id}`} />
+</SiteLayout>

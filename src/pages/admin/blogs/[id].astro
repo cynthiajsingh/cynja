@@ -1,0 +1,22 @@
+---
+import EditorApp from '../../../admin/editor/Editor.tsx';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getServices } from '../../../server/container.ts';
+import { NotFoundError } from '../../../server/errors.ts';
+
+const id = Astro.params.id ?? '';
+if (!/^[0-9a-f-]{36}$/.test(id)) return Astro.rewrite('/404');
+const { posts, taxonomy } = await getServices();
+let post;
+try {
+  post = await posts.get(id);
+} catch (err) {
+  if (err instanceof NotFoundError) return Astro.rewrite('/404');
+  throw err;
+}
+const categories = (await taxonomy.listCategories()).map((c) => ({ id: c.id, name: c.name }));
+const siteUrl = (Astro.site?.href ?? Astro.url.origin).replace(/\/$/, '');
+---
+<AdminLayout title={post.title || 'Untitled draft'} current="editor">
+  <EditorApp client:only="react" post={post} categories={categories} siteUrl={siteUrl} />
+</AdminLayout>

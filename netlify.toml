@@ -1,0 +1,36 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[functions]
+  directory = "netlify/functions"
+
+# Baseline security headers for static files. Server-rendered pages set their
+# own (including CSP and noindex for admin routes) in src/middleware.ts.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    # No X-Frame-Options here: cynja.in currently frames cynja.netlify.app via
+    # GoDaddy masked forwarding. Once DNS points directly at Netlify, add
+    # X-Frame-Options = "SAMEORIGIN". Admin pages already deny framing.
+
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[redirects]]
+  from = "/blog"
+  to = "/blogs"
+  status = 301
+
+[[redirects]]
+  from = "/blog/*"
+  to = "/blogs/:splat"
+  status = 301

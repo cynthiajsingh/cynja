@@ -1,0 +1,45 @@
+---
+interface Props {
+  url: string;
+  title: string;
+}
+const { url, title } = Astro.props;
+const u = encodeURIComponent(url);
+const t = encodeURIComponent(title);
+const links = [
+  { label: 'LinkedIn', href: `https://www.linkedin.com/sharing/share-offsite/?url=${u}` },
+  { label: 'X', href: `https://twitter.com/intent/tweet?url=${u}&text=${t}` },
+  { label: 'WhatsApp', href: `https://wa.me/?text=${t}%20${u}` },
+  { label: 'Email', href: `mailto:?subject=${t}&body=${u}` },
+];
+---
+<div class="share" aria-label="Share this article">
+  <strong>Share</strong>
+  {links.map((l) => (
+    <a href={l.href} target={l.label === 'Email' ? undefined : '_blank'} rel="noopener noreferrer">
+      {l.label}<span class="sr-only"> (opens {l.label === 'Email' ? 'your email app' : 'in a new tab'})</span>
+    </a>
+  ))}
+  <button type="button" data-copy-link={url}>Copy link</button>
+  <span class="sr-only" role="status" aria-live="polite" data-copy-status></span>
+</div>
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy-link]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const status = btn.parentElement?.querySelector('[data-copy-status]');
+      const url = btn.dataset.copyLink ?? location.href;
+      try {
+        if (navigator.share && matchMedia('(pointer: coarse)').matches) {
+          await navigator.share({ url, title: document.title });
+          return;
+        }
+        await navigator.clipboard.writeText(url);
+        btn.textContent = 'Link copied ✓';
+        if (status) status.textContent = 'Link copied to clipboard';
+      } catch {
+        window.prompt('Copy this link:', url);
+      }
+      setTimeout(() => { btn.textContent = 'Copy link'; }, 2500);
+    });
+  });
+</script>

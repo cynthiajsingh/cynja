@@ -1,0 +1,26 @@
+---
+import { formatDate, readingLabel } from '../../lib/format.ts';
+import type { PostSummary } from '../../server/posts/types.ts';
+
+interface Props {
+  post: PostSummary;
+  headingLevel?: 'h2' | 'h3';
+}
+const { post, headingLevel = 'h2' } = Astro.props;
+const Heading = headingLevel;
+---
+<a class="post-card" href={`/blogs/${post.slug}`}>
+  <div class="media">
+    {post.coverImage
+      ? <img src={post.coverImage.url} alt={post.coverImage.alt} width={post.coverImage.width ?? undefined} height={post.coverImage.height ?? undefined} loading="lazy" decoding="async" />
+      : <div class="placeholder" aria-hidden="true">{post.title.charAt(0)}</div>}
+  </div>
+  {post.categories.length > 0 && <div class="cats">{post.categories.map((c) => c.name).join(' · ')}</div>}
+  <Heading>{post.title}</Heading>
+  <p>{post.excerpt}</p>
+  <div class="meta">
+    <span>{post.authorName}</span>
+    <span><time datetime={post.publishedAt}>{formatDate(post.publishedAt)}</time></span>
+    <span>{readingLabel(post.readingMinutes)}</span>
+  </div>
+</a>

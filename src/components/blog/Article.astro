@@ -1,0 +1,45 @@
+---
+// The article body, shared by the public reader and the admin preview so both look identical.
+import { formatDate, initials, readingLabel } from '../../lib/format.ts';
+import type { ArticleView } from '../../server/posts/types.ts';
+
+interface Props {
+  article: ArticleView;
+  backHref?: string;
+}
+const { article, backHref = '/blogs' } = Astro.props;
+const showUpdated = new Date(article.updatedAt).getTime() - new Date(article.publishedAt).getTime() > 86_400_000;
+---
+<article itemscope itemtype="https://schema.org/BlogPosting">
+  <header class="article-head">
+    <div class="wrap">
+      <a class="back-link" href={backHref}>← All articles</a>
+      {article.categories.length > 0 && (
+        <ul class="cats" aria-label="Categories">
+          {article.categories.map((c) => <li><a href={`/blogs?category=${c.slug}`}>{c.name}</a></li>)}
+        </ul>
+      )}
+      <h1 itemprop="headline">{article.title}</h1>
+      {article.excerpt && <p class="dek" itemprop="description">{article.excerpt}</p>}
+      <div class="byline">
+        <span class="avatar" aria-hidden="true">{initials(article.authorName)}</span>
+        <div>
+          <strong itemprop="author">{article.authorName}</strong>
+          <div class="meta">
+            <span><time datetime={article.publishedAt} itemprop="datePublished">{formatDate(article.publishedAt)}</time></span>
+            <span>{readingLabel(article.readingMinutes)}</span>
+            {showUpdated && <span>Updated <time datetime={article.updatedAt} itemprop="dateModified">{formatDate(article.updatedAt)}</time></span>}
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  {article.coverImage && (
+    <figure class="article-cover">
+      <img src={article.coverImage.url} alt={article.coverImage.alt} width={article.coverImage.width ?? undefined}
+        height={article.coverImage.height ?? undefined} fetchpriority="high" itemprop="image" />
+    </figure>
+  )}
+  <div class="article-body prose" itemprop="articleBody" set:html={article.contentHtml} />
+  <slot />
+</article>

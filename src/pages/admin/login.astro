@@ -1,0 +1,21 @@
+---
+import LoginForm from '../../admin/LoginForm.tsx';
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getServices } from '../../server/container.ts';
+
+const rawNext = Astro.url.searchParams.get('next') ?? '';
+// Only allow redirects back into the admin area (no open redirects).
+const next = /^\/admin(\/[\w\-./?=&%]*)?$/.test(rawNext) && !rawNext.startsWith('/admin/login') ? rawNext : '/admin/blogs';
+if (Astro.locals.session) return Astro.redirect(next);
+const configured = await (await getServices()).auth.adminExists();
+---
+<AdminLayout title="Sign in" bare>
+  <main class="login-wrap">
+    <div class="login-card">
+      <span class="brand-mark" aria-hidden="true" style="display:inline-flex">CS</span>
+      <h1>Blog admin</h1>
+      <p class="sub">Sign in to write and publish articles.</p>
+      <LoginForm client:load next={next} configured={configured} />
+    </div>
+  </main>
+</AdminLayout>

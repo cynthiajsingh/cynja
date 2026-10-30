@@ -1,0 +1,11 @@
+---
+import Dashboard from '../../../admin/Dashboard.tsx';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getServices } from '../../../server/container.ts';
+
+const { posts, taxonomy } = await getServices();
+const [stats, recent, categories] = await Promise.all([posts.stats(), posts.recentlyEdited(5), taxonomy.listCategories()]);
+---
+<AdminLayout title="Articles" current="dashboard">
+  <Dashboard client:load stats={stats} recent={recent.items} categories={categories.map((c) => ({ id: c.id, name: c.name }))} />
+</AdminLayout>

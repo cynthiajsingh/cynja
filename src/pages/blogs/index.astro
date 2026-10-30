@@ -1,0 +1,160 @@
+---
+import PostCard from '../../components/blog/PostCard.astro';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { formatDate, readingLabel } from '../../lib/format.ts';
+import { getServices } from '../../server/container.ts';
+import { publicListQuerySchema } from '../../server/posts/schemas.ts';
+import type { Page, PostSummary } from '../../server/posts/types.ts';
+import type { Category } from '../../server/taxonomy/service.ts';
+
+const query = publicListQuerySchema.parse(Object.fromEntries(Astro.url.searchParams));
+const filtering = Boolean(query.q || query.category || query.tag);
+
+let list: Page<PostSummary> | null = null;
+let featured: PostSummary | null = null;
+let categories: Category[] = [];
+let failed = false;
+try {
+  const { posts, taxonomy } = await getServices();
+  [list, categories] = await Promise.all([posts.listPublic(query), taxonomy.liveCategories()]);
+  if (!filtering && query.page === 1) {
+    featured = await posts.latestFeatured();
+  }
+} catch (err) {
+  console.error('[blogs] listing failed', err);
+  failed = true;
+  Astro.response.status = 503;
+}
+
+const items = (list?.items ?? []).filter((p) => p.id !== featured?.id);
+const activeCategory = categories.find((c) => c.slug === query.category);
+const activeTag = query.tag ? list?.items.flatMap((p) => p.tags).find((t) => t.slug === query.tag) : undefined;
+
+function pageHref(n: number): string {
+  const params = new URLSearchParams();
+  if (query.q) params.set('q', query.q);
+  if (query.category) params.set('category', query.category);
+  if (query.tag) params.set('tag', query.tag);
+  if (n > 1) params.set('page', String(n));
+  const s = params.toString();
+  return s ? `/blogs?${s}` : '/blogs';
+}
+
+const heading = activeCategory ? activeCategory.name : activeTag ? `#${activeTag.name}` : 'Insights on behaviour, leadership & learning';
+const description = activeCategory?.description
+  || 'Practical articles by Cynthia J Singh on workplace communication, leadership, sales, service excellence and learning & development.';
+// Search results are not indexed; category pages and pagination are.
+const noindex = Boolean(query.q) || failed;
+const canonicalPath = query.q ? '/blogs' : pageHref(query.page);
+const pageCount = list?.pageCount ?? 1;
+---
+<SiteLayout
+  title={query.page > 1 ? `${heading} — Page ${query.page}` : heading === 'Insights on behaviour, leadership & learning' ? 'Blog' : `${heading} — Blog`}
+  description={description}
+  canonicalPath={canonicalPath}
+  noindex={noindex}
+  prevUrl={query.page > 1 ? pageHref(query.page - 1) : undefined}
+  nextUrl={query.page < pageCount ? pageHref(query.page + 1) : undefined}
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    name: 'Cynthia J Singh — Blog',
+    url: new URL('/blogs', Astro.site).href,
+    author: { '@type': 'Person', name: 'Cynthia J Singh', url: new URL('/', Astro.site).href },
+  }}
+>
+  <section class="blog-hero">
+    <div class="container">
+      <div class="eyebrow">{activeCategory || activeTag ? 'Browsing' : 'The Blog'}</div>
+      <h1>{heading}</h1>
+      <p>{description}</p>
+    </div>
+  </section>
+
+  <section class="blog-tools" aria-label="Search and filter articles">
+    <div class="container">
+      <form class="search-form" role="search" action="/blogs" method="get">
+        <label for="blog-search" class="sr-only">Search articles</label>
+        <input id="blog-search" type="search" name="q" value={query.q ?? ''} placeholder="Search articles…" maxlength="200" />
+        {query.category && <input type="hidden" name="category" value={query.category} />}
+        <button type="submit">Search</button>
+      </form>
+      {categories.length > 0 && (
+        <nav aria-label="Categories">
+          <ul class="chips">
+            <li><a class="chip" href={query.q ? `/blogs?q=${encodeURIComponent(query.q)}` : '/blogs'} aria-current={!query.category ? 'true' : undefined}>All</a></li>
+            {categories.map((c) => {
+              const params = new URLSearchParams({ category: c.slug });
+              if (query.q) params.set('q', query.q);
+              return <li><a class="chip" href={`/blogs?${params}`} aria-current={query.category === c.slug ? 'true' : undefined}>{c.name}</a></li>;
+            })}
+          </ul>
+        </nav>
+      )}
+    </div>
+  </section>
+
+  <section class="blog-main">
+    <div class="container">
+      {failed ? (
+        <div class="state-box" role="alert">
+          <h2>The blog is temporarily unavailable</h2>
+          <p>We couldn't load articles just now. Please try again in a moment.</p>
+          <a class="btn btn-primary" href={Astro.url.pathname + Astro.url.search}>Try again</a>
+        </div>
+      ) : list && list.total === 0 && filtering ? (
+        <div class="state-box">
+          <h2>No articles match{query.q ? ` “${query.q}”` : ' this filter'}</h2>
+          <p>Try a different word, or browse everything.</p>
+          <a class="btn btn-outline" href="/blogs">Clear search &amp; filters</a>
+        </div>
+      ) : list && list.total === 0 ? (
+        <div class="state-box">
+          <h2>New articles are on the way</h2>
+          <p>Cynthia's first posts are being written. In the meantime, explore her programs.</p>
+          <a class="btn btn-primary" href="/#programs">See programs</a>
+        </div>
+      ) : (
+        <>
+          {filtering && list && (
+            <p class="result-note" role="status">
+              {list.total} {list.total === 1 ? 'article' : 'articles'}
+              {query.q && <> for “{query.q}”</>}
+              {activeCategory && <> in {activeCategory.name}</>}
+              {activeTag && <> tagged {activeTag.name}</>}
+              {' · '}<a href="/blogs">Clear</a>
+            </p>
+          )}
+          {featured && (
+            <a class="featured-card" href={`/blogs/${featured.slug}`}>
+              <div class="media">
+                {featured.coverImage && <img src={featured.coverImage.url} alt={featured.coverImage.alt} fetchpriority="high" />}
+              </div>
+              <div class="body">
+                <span class="badge">Featured</span>
+                <h2>{featured.title}</h2>
+                <p>{featured.excerpt}</p>
+                <div class="meta">
+                  <span>{featured.authorName}</span>
+                  <span><time datetime={featured.publishedAt}>{formatDate(featured.publishedAt)}</time></span>
+                  <span>{readingLabel(featured.readingMinutes)}</span>
+                </div>
+              </div>
+            </a>
+          )}
+          <ul class="post-grid">
+            {items.map((post) => <li><PostCard post={post} /></li>)}
+          </ul>
+          {pageCount > 1 && (
+            <nav class="pagination" aria-label="Pagination">
+              {query.page > 1 ? <a href={pageHref(query.page - 1)} rel="prev">← Newer</a> : <span class="disabled" aria-hidden="true">← Newer</span>}
+              {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) =>
+                n === query.page ? <span aria-current="page">{n}</span> : <a href={pageHref(n)} aria-label={`Page ${n}`}>{n}</a>)}
+              {query.page < pageCount ? <a href={pageHref(query.page + 1)} rel="next">Older →</a> : <span class="disabled" aria-hidden="true">Older →</span>}
+            </nav>
+          )}
+        </>
+      )}
+    </div>
+  </section>
+</SiteLayout>

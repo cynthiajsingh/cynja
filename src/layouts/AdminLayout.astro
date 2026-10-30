@@ -1,0 +1,47 @@
+---
+import '../styles/site.css';
+// The editor renders content with the same `.prose` styles readers see.
+import '../styles/blog.css';
+import '../styles/admin.css';
+import LogoutButton from '../admin/LogoutButton.tsx';
+
+interface Props {
+  title: string;
+  current?: 'dashboard' | 'media' | 'settings' | 'editor';
+  bare?: boolean;
+}
+const { title, current, bare = false } = Astro.props;
+const session = Astro.locals.session;
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="csrf-token" content={Astro.locals.csrfToken ?? ''} />
+  <title>{title} · Blog admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body class="admin">
+  <a class="skip-link" href="#admin-main">Skip to content</a>
+  {!bare && session && (
+    <header class="admin-bar">
+      <a href="/admin/blogs" class="brand" aria-label="Blog admin home"><span class="brand-mark" aria-hidden="true">CS</span></a>
+      <nav aria-label="Admin">
+        <a href="/admin/blogs" aria-current={current === 'dashboard' ? 'page' : undefined}>Articles</a>
+        <a href="/admin/media" aria-current={current === 'media' ? 'page' : undefined}>Media</a>
+        <a href="/admin/settings" aria-current={current === 'settings' ? 'page' : undefined}>Settings</a>
+        <a href="/blogs" target="_blank" rel="noopener">View blog ↗</a>
+      </nav>
+      <span class="who">Signed in as {session.admin.username}</span>
+      <LogoutButton client:load />
+    </header>
+  )}
+  <div id="admin-main" tabindex="-1">
+    <slot />
+  </div>
+</body>
+</html>

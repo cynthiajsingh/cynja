@@ -1,0 +1,11 @@
+---
+import Settings from '../../admin/Settings.tsx';
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getServices } from '../../server/container.ts';
+
+const { settings, taxonomy } = await getServices();
+const [author, categories, tags] = await Promise.all([settings.author(), taxonomy.listCategories(), taxonomy.listTags()]);
+---
+<AdminLayout title="Settings" current="settings">
+  <Settings client:load author={author} categories={categories} tags={tags} username={Astro.locals.session!.admin.username} />
+</AdminLayout>

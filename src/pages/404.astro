@@ -1,0 +1,15 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+Astro.response.status = 404;
+---
+<SiteLayout title="Page not found" description="The page you were looking for could not be found." noindex>
+  <section class="blog-main">
+    <div class="container">
+      <div class="state-box">
+        <h1 style="font-family:var(--serif);font-size:34px;margin-bottom:12px;">Page not found</h1>
+        <p>This article may have been moved or unpublished.</p>
+        <a class="btn btn-primary" href="/blogs">Browse all articles</a>
+      </div>
+    </div>
+  </section>
+</SiteLayout>
