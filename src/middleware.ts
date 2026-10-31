@@ -21,7 +21,7 @@ const ADMIN_CSP = [
   "frame-ancestors 'none'",
 ].join('; ');
 
-// Public pages may still be framed by the cynja.in masked forward until DNS moves to Netlify.
+// Public pages may only be framed by this site itself.
 const PUBLIC_CSP = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline'",
@@ -33,6 +33,7 @@ const PUBLIC_CSP = [
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
+  "frame-ancestors 'self'",
 ].join('; ');
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
