@@ -105,11 +105,11 @@ build command (`npm run build`), which applies database migrations and then buil
    Then sign in at `https://cynja.in/admin/login`.
 6. **Point cynja.in at Netlify** (see below).
 
-### Point the domain at Netlify (replace GoDaddy masked forwarding)
+### Point the domain at Netlify (done October 2026)
 
-Today, cynja.in uses GoDaddy "forwarding with masking": it shows `cynja.netlify.app` inside
-a frame. Search engines then see only an empty frame, article URLs never appear in the
-address bar, and browsers block the admin login cookie inside the frame. To fix it:
+cynja.in used to use GoDaddy "forwarding with masking", which showed `cynja.netlify.app`
+inside a frame: search engines saw only an empty frame and browsers blocked the admin
+login cookie. It now points directly at Netlify. For reference, the steps were:
 
 1. In **Netlify → Domain management → Add a domain**, enter `cynja.in` and follow the prompts.
 2. In **GoDaddy → My Products → DNS for cynja.in**:
@@ -118,10 +118,10 @@ address bar, and browsers block the admin login cookie inside the frame. To fix 
      `CNAME` `www → cynja.netlify.app`.
    - Alternatively, switch the nameservers to Netlify DNS.
 3. Wait for DNS to propagate. Netlify then issues the HTTPS certificate automatically.
-4. Afterwards, add `X-Frame-Options = "SAMEORIGIN"` to the `/*` headers in
-   `netlify.toml`. It is left out today only because the masked frame would break.
+4. Afterwards, restrict framing to the site itself (`frame-ancestors 'self'` in the `/*`
+   headers in `netlify.toml`).
 
-Until then, use **https://cynja.netlify.app/admin** to sign in.
+Sign in at **https://cynja.in/admin**.
 
 ## 5. Writing workflow
 

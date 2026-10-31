@@ -16,9 +16,9 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-    # No X-Frame-Options here: cynja.in currently frames cynja.netlify.app via
-    # GoDaddy masked forwarding. Once DNS points directly at Netlify, add
-    # X-Frame-Options = "SAMEORIGIN". Admin pages already deny framing.
+    # Only this site may frame its pages. Expressed as CSP rather than X-Frame-Options so
+    # it combines cleanly with the stricter frame-ancestors 'none' the admin pages send.
+    Content-Security-Policy = "frame-ancestors 'self'"
 
 [[headers]]
   for = "/images/*"
